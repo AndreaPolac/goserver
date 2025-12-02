@@ -5,10 +5,6 @@ import (
 )
 
 func (cfg *apiConfig) handlerChirpsGetAll(w http.ResponseWriter, r *http.Request) {
-	// type response struct {
-	// 	Chirps []Chirp
-	// }
-
 	chirpsFromDB, err := cfg.db.GetChirps(r.Context())
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't retrieve chirps", err)
