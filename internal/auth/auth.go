@@ -1,6 +1,11 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/alexedwards/argon2id"
@@ -57,4 +62,23 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, error) {
 		return uuid.Nil, err
 	}
 	return parsedUserID, nil
+}
+
+func GetBearerToken(headers http.Header) (string, error) {
+	authHeader := headers.Get("Authorization")
+	if authHeader == "" {
+		return "", fmt.Errorf("authorization header missing")
+	}
+	if !strings.HasPrefix(authHeader, "Bearer ") {
+		return "", fmt.Errorf("authorization header format must be Bearer {token}")
+	}
+	return strings.TrimPrefix(authHeader, "Bearer "), nil
+}
+
+// MakeRefreshToken makes a random 256 bit token
+// encoded in hex
+func MakeRefreshToken() string {
+	token := make([]byte, 32)
+	rand.Read(token)
+	return hex.EncodeToString(token)
 }
